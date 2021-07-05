@@ -1,0 +1,6 @@
+{% block content %}
+    {% for event in events %}
+        <p>id {{ event.id }}</p>
+        <p>name {{ event.name }}</p>
+    {% endfor %}
+{% endblock %}

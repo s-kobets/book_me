@@ -1,0 +1,1 @@
+web: gunicorn book_me.wsgi --log-file -

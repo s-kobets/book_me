@@ -1,0 +1,52 @@
+.DS_Store
+# Django #
+*.log
+*.pot
+*.pyc
+__pycache__
+db.sqlite3
+media
+lib/
+staticfiles/
+
+# Backup files # 
+*.bak 
+
+# If you are using PyCharm # 
+.idea/
+*.iws /out/ 
+
+# Python # 
+*.py[cod] 
+*$py.class 
+
+# Installer logs 
+pip-log.txt 
+pip-delete-this-directory.txt 
+
+# pyenv 
+.python-version 
+
+# celery 
+celerybeat-schedule.* 
+
+# SageMath parsed files 
+*.sage.py 
+
+# Environments 
+.env 
+.venv 
+env/ 
+venv/ 
+ENV/ 
+env.bak/ 
+venv.bak/ 
+
+# mkdocs documentation 
+/site 
+
+# mypy 
+.mypy_cache/ 
+
+# sftp configuration file 
+sftp-config.json 

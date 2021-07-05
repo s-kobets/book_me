@@ -1,0 +1,101 @@
+{% extends 'events/wrapper.html' %}
+
+{% block content %}
+    <div class="uk-margin uk-card-body">
+        <div class="uk-width-expand">
+            <h3 class="uk-text-lead uk-margin-remove-bottom">{{ event.place.title }}</h3>
+            <p class="uk-text-meta">Опубликовано: {{ event.date|date:"d-m-Y в H:i:s" }}</p>
+        </div>
+        <p>{{ event.place.description|safe|linebreaks }}</p>
+        <h4>Перевозчик</h4>
+        {% for transport in event.transport.all %}
+            <div class="uk-card uk-card-default uk-card-hover uk-card-body uk-width-medium">
+                <div class="js-transport-id" hidden>{{ transport.id }}</div>
+                <h4 class="uk-text-bold">{{ transport.title }}</h4>
+                <p>Свободно: {{ transport.free_seats }}</p>
+                <p>Минимальное кол-во: {{ transport.min_people }}</p>
+                <p>Максимальное кол-во: {{ transport.max_people }}</p>
+            </div>
+        {% endfor %}
+
+        <h4>Забронировать</h4>
+        <form action="/api/carrier" method="post" id="book_seats">
+            {% csrf_token %}
+            <select id="js-promoters" hidden multiple>
+                {% for promoter in event.promoter.all %}
+                    <option value={{ promoter.id }}></option>
+                {% endfor %}
+
+            </select>
+            <input type="text" name="id" value={{ event.id }} hidden>
+            <input type="text" name="promoter" value={{ user.id }} hidden>
+            <div>
+                <label class="uk-form-label">Количество мест</label>
+                <div class="uk-form-controls">
+                    <input class="uk-input uk-width-1-2" type="number" name="seats" value="1" required>
+                    <button class="uk-button uk-button-default">Забронировать</button>
+                </div>
+            </div>
+        </form>
+
+        <h4>Промоутеры</h4>
+        {% for promoter in event.promoter.all %}
+            <span>{{ promoter.username }}</span>
+        {% endfor %}
+    </div>
+
+    {#    {% load my_filters %}#}
+    {#    {% for i in event.carrier.max_people|times %}#}
+    {#        + or - 1 #}
+    {#        {% if event.carrier.seats > i %}#}
+    {#            <strong>{{ i }}</strong>#}
+    {#        {% endif %}#}
+    {#        <span>{{ i }}</span>#}
+    {#    {% endfor %}#}
+
+    <script>
+        const form = document.getElementById('book_seats')
+        form.onsubmit = (e) => {
+            e.preventDefault()
+            const elements = e.target.elements;
+            const data = {};
+            for (let i = 0; i < elements.length; i++) {
+                let item = elements.item(i);
+                data[item.name] = item.value;
+            }
+
+            const promoters = Array.from(document.getElementById("js-promoters").options).filter(option => option.value !== data.promoter).map(option => ({id: option.value}));
+
+            console.log(data)
+            {#TODO get ID#}
+            fetch(`/api/events/${data.id}/`, {
+                headers: {
+                    'X-CSRFToken': data.csrfmiddlewaretoken,
+                    'content-type': 'application/json;',
+                },
+                body: JSON.stringify({
+                    transport: [
+                        {
+                            id: document.getElementsByClassName('js-transport-id')[0].textContent,
+                            seats: data.seats
+                        }
+                    ],
+                    promoter: [
+                        ...promoters,
+                        {
+                            id: data.promoter
+                        }
+                    ]
+                }),
+                method: 'PUT',
+            })
+                .then((res) => res)
+                .then((res) => {
+                    console.log('done', res)
+                });
+
+        }
+
+    </script>
+
+{% endblock %}
