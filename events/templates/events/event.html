@@ -19,24 +19,30 @@
         {% endfor %}
 
         <h4>Забронировать</h4>
-        <form action="/api/carrier" method="post" id="book_seats">
-            {% csrf_token %}
-            <select id="js-promoters" hidden multiple>
-                {% for promoter in event.promoter.all %}
-                    <option value={{ promoter.id }}></option>
-                {% endfor %}
+        {% if user.username %}
+            <form action="/api/carrier" method="post" id="book_seats">
+                {% csrf_token %}
+                <select id="js-promoters" hidden multiple>
+                    {% for promoter in event.promoter.all %}
+                        <option value={{ promoter.id }}></option>
+                    {% endfor %}
 
-            </select>
-            <input type="text" name="id" value={{ event.id }} hidden>
-            <input type="text" name="promoter" value={{ user.id }} hidden>
-            <div>
-                <label class="uk-form-label">Количество мест</label>
-                <div class="uk-form-controls">
-                    <input class="uk-input uk-width-1-2" type="number" name="seats" value="1" required>
-                    <button class="uk-button uk-button-default">Забронировать</button>
+                </select>
+                <input type="text" name="id" value={{ event.id }} hidden>
+                <input type="text" name="promoter" value={{ user.id }} hidden>
+                <div>
+                    <label class="uk-form-label">Количество мест</label>
+                    <div class="uk-form-controls">
+                        <input id="js-seats" class="uk-input uk-width-1-2" type="number" name="seats" value="1" required>
+                        <button class="uk-button uk-button-primary">Забронировать</button>
+                    </div>
                 </div>
-            </div>
-        </form>
+            </form>
+        {% else %}
+            <a href="/admin" target="_blank">
+                <button class="uk-button uk-button-primary">Регистрация</button>
+            </a>
+        {% endif %}
 
         <h4>Промоутеры</h4>
         {% for promoter in event.promoter.all %}
@@ -65,8 +71,8 @@
             }
 
             const promoters = Array.from(document.getElementById("js-promoters").options).filter(option => option.value !== data.promoter).map(option => ({id: option.value}));
-
-            console.log(data)
+            const input_seats = document.getElementById('js-seats')
+            {#console.log(data)#}
             {#TODO get ID#}
             fetch(`/api/events/${data.id}/`, {
                 headers: {
@@ -91,8 +97,12 @@
             })
                 .then((res) => res)
                 .then((res) => {
+                    input_seats.classList.add('uk-form-success')
                     console.log('done', res)
-                });
+                })
+            .catch(() => {
+                input_seats.classList.add('uk-form-success')
+            })
 
         }
 

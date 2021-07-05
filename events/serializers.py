@@ -62,14 +62,14 @@ class EventSerializer(serializers.ModelSerializer):
         promoters = (instance.promoter).all()
         promoters = list(promoters)
 
+        for promoter_data in promoters_data:
+            promoter = promoters.pop(0)
+            promoter.id = promoter_data.get('id', promoter.id)
+            promoter.save()
+
         for transport_data in transports_data:
             transport = transports.pop(0)
             transport.id = transport_data.get('id', transport.id)
             transport.seats = transport_data.get('seats') + transport.seats
             transport.save()
-
-        for promoter_data in promoters_data:
-            promoter = promoters.pop(0)
-            promoter.id = promoter_data.get('id', promoter.id)
-            promoter.save()
         return instance
